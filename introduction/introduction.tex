@@ -126,83 +126,92 @@ the \emph{$\ell$-adic closure} of $\F_q$ to be the union
 Assume we have build these towers for different prime $\ell$. Then we can glue them together to get 
 the algebraic closure. By gluing here we mean computing composita. Figure \ref{figure:alg-closure}  
 shows the above structure of $\overline{\F_q}$. The solid circles in the middle are the composita.
-\begin{figure}
-	\begin{center}
-		\tikzset{
-			dotstyle/.style={inner sep = 2pt, outer sep = 2pt, circle, fill = lightgray},
-			edgetower/.style={thick},
-			edgecomp/.style={thick, lightgray}
-		}
-		\begin{tikzpicture} %, every node/.style={inner sep = 2pt, scale=0.8}]
-			\coordinate (T2) at (-2, 0.5);
-			\node (Fq) at (0, 0) {$\F_q$};
-			\node (Fq2) at ($(Fq) + (T2)$) {$\F_{q^2}$};
-			\node (Fq4) at ($(Fq2) + (T2)$) {$\F_{q^4}$};
-			\node (Fq2l) at ($(Fq4) + (T2)$) {$\F_q^{(2)}$};
-			%---------------------
-			\coordinate (T3) at (-0.7, 2);
-			\node (Fq3) at ($(Fq) + (T3)$) {$\F_{q^3}$};
-			\node (Fq9) at ($(Fq3) + (T3)$) {$\F_{q^9}$};
-			\node (Fq3l) at ($(Fq9) + (T3)$) {$\F_q^{(3)}$};
-			%---------------------
-			\coordinate (T5) at (0.7, 2);
-			\node (Fq5) at ($(Fq) + (T5)$) {$\F_{q^5}$};
-			\node (Fq25) at ($(Fq5) + (T5)$) {$\F_{q^{25}}$};
-			\node (Fq5l) at ($(Fq25) + (T5)$) {$\F_q^{(5)}$};
-			%---------------------
-			\coordinate (Tl) at (2, 1);
-			\node[blue] (Fql) at ($(Fq) + (Tl)$) {$\F_{q^\ell}$};
-			\node[blue] (Fql2) at ($(Fql) + (Tl)$) {$\F_{q^{\ell^2}}$};
-			\node[blue] (Fqll) at ($(Fql2) + (Tl)$) {$\F_q^{(\ell)}$};
-			%---------------------
-			\node[dotstyle] (dot1) at ($(Fq2) + (Fq3) - (Fq)$){};
-			\node[dotstyle] (dot2) at ($(Fq4) + (dot1) - (Fq2)$){};
-			\node[dotstyle] (dot3) at ($(Fq2) + (Fq5) - (Fq)$){};
-			\node[dotstyle] (dot4) at ($(Fq3) + (Fq5) - (Fq)$){};
-			\node[dotstyle] (dot5) at ($(Fq3) + (Fql) - (Fq)$){};
-			\node[dotstyle] (dot6) at ($(Fq5) + (Fql) - (Fq)$){};
-			%---------------------
-			\draw 
-			(Fq) 
-			edge[edgetower] (Fq2)
-			edge[edgetower] (Fq3)
-			edge[edgetower] (Fq5)
-			edge[edgetower, blue] (Fql)
-			(Fq2)
-			edge[edgetower] (Fq4)
-			edge[edgecomp] (dot1)
-			(Fq4)
-			edge[edgetower, dotted] (Fq2l)
-			edge[edgecomp] (dot2)
-			(dot1)
-			edge[edgecomp] (dot2)
-			(Fq3)
-			edge[edgetower] (Fq9)
-			edge[edgecomp] (dot1)
-			edge[edgecomp] (dot4)
-			(Fq9)
-			edge[edgetower, dotted] (Fq3l)
-			(Fq5)
-			edge[edgetower] (Fq25)
-			edge[edgecomp] (dot4)
-			edge[edgecomp] (dot6)
-			(Fq25)
-			edge[edgetower, dotted] (Fq5l)
-			(Fql)
-			edge[edgetower, blue] (Fql2)
-			edge[edgecomp] (dot6)
-			(Fql2)
-			edge[edgetower, blue, dotted] (Fqll)
-			(dot3)
-			edge[edgecomp] (Fq2)
-			edge[edgecomp] (Fq5)
-			(dot5)
-			edge[edgecomp] (Fq3)
-			edge[edgecomp] (Fql);
-		\end{tikzpicture}
-	\end{center}
-	\caption{Algebraic closure of $\F_q$}
-	\label{figure:alg-closure}
+
+\begin{figure}[h]
+	\centering
+	\tikzset{
+		dotstyle/.style={inner sep = 1pt, gray},
+		edgetower/.style={thick},
+		edgecomp/.style={thick, lightgray}
+	}
+	\resizebox{12cm}{!}{
+	\begin{tikzpicture}
+		\coordinate (T2) at (-2, 0.5);
+		\node (Fq) at (0, 0) {$\F_q$};
+		\node (Fq2) at ($(Fq) + (T2)$) {$\F_{q^2}$};
+		\node (Fq4) at ($(Fq2) + (T2)$) {$\F_{q^4}$};
+		\node (Fq2l) at ($(Fq4) + (T2)$) {$\F_q^{(2)}$};
+		%---------------------
+		\coordinate (T3) at (-0.7, 2);
+		\node (Fq3) at ($(Fq) + (T3)$) {$\F_{q^3}$};
+		\node (Fq9) at ($(Fq3) + (T3)$) {$\F_{q^9}$};
+		\node (Fq3l) at ($(Fq9) + (T3)$) {$\F_q^{(3)}$};
+		%---------------------
+		\coordinate (T5) at (0.7, 2);
+		\node (Fq5) at ($(Fq) + (T5)$) {$\F_{q^5}$};
+		\node (Fq25) at ($(Fq5) + (T5)$) {$\F_{q^{25}}$};
+		\node (Fq5l) at ($(Fq25) + (T5)$) {$\F_q^{(5)}$};
+		%---------------------
+		\coordinate (Tl) at (2, 1);
+		\node[blue] (Fql) at ($(Fq) + (Tl)$) {$\F_{q^\ell}$};
+		\node[blue] (Fql2) at ($(Fql) + (Tl)$) {$\F_{q^{\ell^2}}$};
+		\node[blue] (Fqll) at ($(Fql2) + (Tl)$) {$\F_q^{(\ell)}$};
+		%---------------------
+		\node[dotstyle] (dot1) at ($(Fq2) + (Fq3) - (Fq)$) {$\otimes$};
+		\node[dotstyle] (dot2) at ($(Fq4) + (dot1) - (Fq2)$) {$\otimes$};
+		\node[dotstyle] (dot3) at ($(Fq2) + (Fq5) - (Fq)$) {$\otimes$};
+		\node[dotstyle] (dot4) at ($(Fq3) + (Fq5) - (Fq)$) {$\otimes$};
+		\node[dotstyle] (dot5) at ($(Fq3) + (Fql) - (Fq)$) {$\otimes$};
+		\node[dotstyle] (dot6) at ($(Fq5) + (Fql) - (Fq)$) {$\otimes$};
+		%---------------------
+		\draw 
+		(Fq) 
+		edge[edgetower] (Fq2)
+		edge[edgetower] (Fq3)
+		edge[edgetower] (Fq5)
+		edge[edgetower, blue] (Fql)
+		(Fq2)
+		edge[edgetower] (Fq4)
+		edge[edgecomp] (dot1)
+		(Fq4)
+		edge[edgetower, dotted] (Fq2l)
+		edge[edgecomp] (dot2)
+		(dot1)
+		edge[edgecomp] (dot2)
+		edge[edgecomp, dotted] ($(dot1) + (Fq9) - (Fq3)$)
+		(dot6)
+		edge[edgecomp, dotted] ($(dot6) + (Fql2) - (Fql)$)
+		edge[edgecomp, dotted] ($(dot6) + (Fq25) - (Fq5)$)
+		(dot4)
+		edge[edgecomp, dotted] ($(dot4) + (Fq9) - (Fq3)$)
+		edge[edgecomp, dotted] ($(dot4) + (Fq25) - (Fq5)$)
+		(Fq3)
+		edge[edgetower] (Fq9)
+		edge[edgecomp] (dot1)
+		edge[edgecomp] (dot4)
+		(Fq9)
+		edge[edgetower, dotted] (Fq3l)
+		(Fq5)
+		edge[edgetower] (Fq25)
+		edge[edgecomp] (dot4)
+		edge[edgecomp] (dot6)
+		(Fq25)
+		edge[edgetower, dotted] (Fq5l)
+		(Fql)
+		edge[edgetower, blue] (Fql2)
+		edge[edgecomp] (dot6)
+		(Fql2)
+		edge[edgetower, blue, dotted] (Fqll)
+		(dot3)
+		edge[edgecomp] (Fq2)
+		edge[edgecomp] (Fq5)
+		(dot5)
+		edge[edgecomp] (Fq3)
+		edge[edgecomp] (Fql);
+	\end{tikzpicture}
+	}
+	\caption{Computational model of the algebraic closure}
+	\label{fig:alg-close}
 \end{figure}
 
 \paragraph{$\ell$-adic towers.} Let $F_i = \F_{q^{\ell^i}}$ be the level $i$ of the $\ell$-adic 
