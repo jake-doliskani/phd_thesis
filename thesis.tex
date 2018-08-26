@@ -1,0 +1,171 @@
+\documentclass[11pt]{report}
+
+
+\usepackage[margin=1in]{geometry}  
+\usepackage{graphicx}              
+\usepackage{amsmath}               
+\usepackage{amsfonts}              
+\usepackage{amsthm}                
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{url}
+\usepackage{subfig}
+\usepackage{xfrac}
+\usepackage[sectionbib]{chapterbib}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc}
+\usepackage{packages/algorithmic}
+\usepackage{packages/seqsplit}
+\usepackage{packages/multirow}
+\usepackage{pifont}
+\usepackage{xcolor}
+\usepackage[T1]{fontenc}
+\usepackage{libertine}
+\usepackage[libertine]{newtxmath}
+
+
+%//////////////////////////////////////////////////////////////////////////////////////////////////
+
+\definecolor{citecolor}{HTML}{00AA00}
+% to make the refrences clickable, and...
+\hypersetup{
+	unicode = true,
+    colorlinks = true,
+    citecolor = citecolor,
+    filecolor = blue,
+    linkcolor = blue,
+    urlcolor = blue,
+    pdfstartview = {FitH},
+}
+
+
+% theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{example}[theorem]{Example}
+\newtheorem*{remark}{Remark}
+\newtheorem*{note}{Note}
+\newenvironment{result}{\par\addvspace{3mm}\ding{96}\hspace*{2mm}\itshape}{\par\addvspace{3mm}}
+
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+\algsetup{linenodelimiter=.}
+
+\newcommand{\wrt}{\vdash} 
+\newcommand{\ang}[1]{\langle#1\rangle}
+\newcommand{\abs}[1]{\left\vert#1\right\vert}
+\newcommand{\dual}[1]{\overline{#1}}
+\newcommand{\tildO}{\tilde{O}}
+% roman numerals
+\newcommand{\romnum}[1]{\romannumeral #1}
+\newcommand{\Romnum}[1]{\uppercase\expandafter{\romannumeral #1}}
+
+
+
+\DeclareMathOperator{\fieldchar}{char} % characteristic of a field
+\DeclareMathOperator{\ringofend}{End} % endomorphism ring
+\DeclareMathOperator{\trace}{tr} % trace of a mtrix
+\DeclareMathOperator{\gal}{Gal} % Galois group
+\DeclareMathOperator{\order}{ord} % order of an element
+\DeclareMathOperator{\lcm}{lcm} % least common multiple
+\DeclareMathOperator{\divisor}{div} % divisor on a curve
+\DeclareMathOperator{\supp}{supp} % support of a divisor
+\DeclareMathOperator{\norm}{N} % norm
+\DeclareMathOperator{\Res}{Res}
+
+\def\Q{\ensuremath{\vmathbb{Q}}}
+\def\N{\ensuremath{\vmathbb{N}}}
+\def\R{\ensuremath{\vmathbb{R}}}
+\def\Z{\ensuremath{\vmathbb{Z}}}
+\def\F{\ensuremath{\vmathbb{F}}}
+\def\H{\ensuremath{\vmathbb{H}}}
+\def\K{\ensuremath{\vmathbb{K}}}
+\def\Kbar{\ensuremath{\overline{\vmathbb{K}}}}
+\def\L{\ensuremath{\vmathbb{L}}}
+\def\A{\ensuremath{\vmathbb{A}}}
+\def\B{\ensuremath{\vmathbb{B}}}
+\def\MM{\ensuremath{\mathsf{M}}}
+\def\II{\ensuremath{\mathsf{I}}}
+\def\QQ{\ensuremath{\mathsf{Q}}}
+\def\CC{\ensuremath{\mathsf{C}}}
+\def\RR{\ensuremath{\mathsf{R}}}
+\def\AA{\ensuremath{\mathsf{A}}}
+\def\va{\ensuremath{\mathsf{a}}}
+\def\vy{\ensuremath{\mathsf{y}}}
+\def\vu{\ensuremath{\mathsf{u}}}
+\def\vb{\ensuremath{\mathsf{b}}}
+\def\vc{\ensuremath{\mathsf{c}}}
+\def\mul{\ensuremath{\mathsf{mul}}}
+\def\rem{\ensuremath{\mathsf{rem}}}
+\def\cat{\ensuremath{\mathsf{cat}}}
+\def\coeff{\ensuremath{\mathsf{coefficient}}}
+\def\mulmod{\ensuremath{\mathsf{mulmod}}}
+\def\rev{\ensuremath{\mathsf{rev}}}
+\def\x{\ensuremath{\mathbf{x}}}
+\def\uu{\ensuremath{\mathbf{U}}}
+\def\bb{\ensuremath{\mathbf{B}}}
+\def\bxi{\boldsymbol{\xi}}
+\def\bupsilon{\boldsymbol{\upsilon}}
+\def\bzeta{\boldsymbol{\zeta}}
+\def\blambda{\boldsymbol{\lambda}}
+
+
+% allow algorithms to split over multiple pages
+\makeatletter
+\newcounter{algorithm}
+\setcounter{algorithm}{0}
+\renewcommand{\thealgorithm}{\arabic{algorithm}}
+\def\algorithm{\@ifnextchar[{\@algorithma}{\@algorithmb}}
+\def\@algorithma[#1]{%
+	\refstepcounter{algorithm}
+	\trivlist
+	\leftmargin\z@
+	\itemindent\z@
+	\labelsep\z@
+	\item[\parbox{\columnwidth}{%
+		\hrule
+		\hrule
+		\noindent\strut\textbf{Algorithm \thealgorithm} #1
+		\hrule
+	}]\hfil\vskip0em%
+}
+\def\@algorithmb{\@algorithma[]}
+\def\endalgorithm{\hfil\vskip-1em\hrule\endtrivlist}
+\makeatother
+
+\setlength{\parindent}{0pt}
+
+% remove chapter gap from list of figures and tables
+\newcommand*{\noaddvspace}{\renewcommand*{\addvspace}[1]{}}
+
+\sloppy
+
+\begin{document}
+	\pagenumbering{roman}
+	\include{titlepage/titlepage}
+	\include{abstract/abstract}
+	\include{coauthorship/coauthorship}
+	\addtocontents{lot}{\protect\noaddvspace}
+	\addtocontents{lof}{\protect\noaddvspace}
+	\listoftables
+	\listoffigures
+	\tableofcontents
+	\pagenumbering{arabic}
+	\include{introduction/introduction}
+	\include{roots_high_ext/roots_high_ext}
+	\include{roots_2ext/roots_2ext}
+	\include{towers/towers}
+	\include{composita/composita}
+	\include{conclusion/conclusion}
+	\appendix
+	\include{finite_fields_appendix/finite_fields}
+% 	\include{vita/vita}
+\end{document}

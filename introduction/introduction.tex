@@ -1,0 +1,321 @@
+\graphicspath{{introduction/}}
+
+\chapter{Introduction}
+
+The theory of finite fields has found much attention during recent decades, most notably due to 
+developments in the branches of computer science such as cryptography, coding theory, switching 
+circuits, and combinatorics \cite{lidl2012applied}. In applications, one almost always encounters 
+finite fields that are extensions of the so-called prime fields. For example, in public-key 
+cryptography, there are cryptosystems that are based on the group of points on an algebraic curve. 
+To have a secure system one must go through the process of choosing a random secure curve. A good 
+class of candidates for such curves are hyperelliptic curves. One of the efficient methods of 
+choosing a secure hyperelliptic curve requires counting the number of points on the curve, which in 
+turn requires building a large number of successive extensions over a small prime field 
+\cite{df10, GaSc12}. 
+
+The natural need for extensions usually arises from the need for manipulating polynomials and their 
+roots. Once the extension are built, the next step is to be able to move elements from one 
+extension to the other. This is where algebraic closures come to the fore. From a computational 
+point of view, an algebraic closure of a given field can be seen as a large enough finite extension 
+that contains the roots of a given finite set of polynomials. Computation in algebraic closures 
+has been considered by others, e.g. \cite{Steel2010342} and references therein. In this chapter, we 
+briefly review some basic properties of finite fields, and discuss some notations on the running 
+time complexities of some basic arithmetics over them. At the end, we give an overview of our 
+computational approach to algebraic closures.
+
+
+\section{Notations}
+
+In this section, we give a very brief review of finite fields concepts and notations used in the 
+subsequent chapters. For a more detailed preliminary on finites fields we refer the reader to 
+Appendix \ref{appendix:finite_fields}. Given a prime number $p$, we denote the prime finite field 
+with $p$ elements by $\F_p$. The prime number $p$ is called the characteristic of the field. 
+
+\paragraph{Irreducible polynomials.}
+The univariate polynomial ring over $\F_p$ is denoted by $\F_p[X]$. The elements of $\F_p[x]$ are 
+of the form $f(X) = a_{n}X^n + a^{n - 1}X^{n - 1} + \cdots + a_0$ where $a_i \in \F_p$. The degree 
+of $f$, denoted by $\deg f$, is $n$. We call $f$ monic if its leading coefficient $a_n$ is 1. The 
+division and remainder operation in $\F_p[X]$ is done using the usual polynomial arithmetic. A 
+polynomial $f \in \F_p[X]$ is reducible if it can be written as $f = gh$ for polynomials $g, h \in 
+\F_p[X]$ of degree $> 0$; otherwise it is called \textit{irreducible}. For a monic irreducible 
+polynomials $f$ of degree $n$ the quotient $\F_p[X] / \ang{f}$ is a finite field extension of 
+$\F_p$ of degree $n$. We usually denote such an extension by $\F_q$ where $q = p^n$.  
+
+\paragraph{Operation complexities}
+The nature of the algorithms presented in this document suggests an algebraic complexity model. 
+This means we will count operations $\{+, -, \times, \div \}$ in a based field such as $\F_p$ or 
+$\F_q$. Consequently, we have to choose a representation for elements of field extensions. For 
+example, one could proceed implementing algorithms using normal basis representation, in which 
+case the complexity estimates are stated differently. However, we shall use the monomial basis 
+representation, since in particular our implementations and result comparisons are based on 
+systems such as NTL \cite{shoup2003ntl}, Magma \cite{MAGMA}, and FLINT \cite{hart2010flint}. In 
+the monomial representation, the finite field or even ring extension are represented by quotients. 
+For example, the finite field $\F_{q^n}$ is represented by $\F_q[X] / \ang{f}$ where $f$ is a 
+monic irreducible polynomial of degree $n$ in $\F_q[X]$. So an element $a \in \F_{q^n}$ is a 
+polynomial of degree less than $n$ in $\F_q[X]$. 
+
+One of the most fundamental operations in all algebraic systems is \textit{polynomial 
+multiplication}. We denote the upper bound for the cost of multiplying two polynomials of degree 
+$n$ by $\MM(n)$. This means for a given field $K$ and two polynomials $f, g \in K[X]$ of degree 
+$n$, $fg$ can be computed using $\MM(n)$ multiplications in $K$. The best known upper bound for 
+$\MM(n)$ is $O(n\log(n)\log\log(n))$ \cite{Schonhage1971,CaKa91}. This is done using Fast Fourier 
+Transform. The idea is to reduce the polynomial multiplication to point-wise vector-vector 
+multiplication using an invertible change of representation. See \cite[Chapter~8]{GaGe03} for more 
+details. We assume that $\MM(n)$ is a super-linear function, i.e. not bounded by any linear 
+function.
+
+Another fundamental operation is \textit{matrix multiplication}. Given two square matrices of size 
+$n$ over a field $K$ we assume they can be multiplied using $O(n^\omega)$ multiplications in $K$, 
+where $\omega$ is called the linear algebra exponent. A naive implementation would give $\omega = 
+3$. A slightly better algorithm due to Strassen \cite{Strassen1969} gives a bound $\omega \le 2.81$.
+The algorithm uses a divide and conquer approach to reduce the multiplication problem to sub-blocks 
+of the given matrices. The smallest known bound is $\omega \le 2.37$ due to Coppersmith and 
+Winograd \cite{CoWi90}. 
+
+Given polynomials $f, g, h \in K[X]$ of degree $n$, the \textit{modular composition} problem is to 
+compute $f(g) \mod{h}$. We denote the upper bound for modular composition by $\CC(n)$. In a boolean 
+complexity model, in which bit or word operation are counted, there is an algorithm due to 
+Kedlaya and Umans \cite{KeUm11, Umans08} that runs in $O(n^{1+\varepsilon}\log(p)^{1+o(1)})$ 
+operations. Since we do not follow a boolean model, and there is still no competitive  
+implementation of their algorithm that we know of, we opt for the well-known algorithm of Brent and 
+Kung \cite{BrKu78}. Their algorithm gives the bound $O(n^{(\omega+1)/2})$. We can take $\omega \le 
+2.37$ using the Coppersmith and Winograd algorithm which gives $\CC(n)=O(n^{1.69})$. There is the 
+slightly better bound $\CC(n)=O(n^{1.67})$ due to Pan \cite{HuPa98}, which uses rectangular matrix 
+multiplication.
+
+\paragraph{Algebraic closures.}
+A field extension $K \subseteq L$ is said to be algebraic if every element $a \in L$ is a root of a 
+monic polynomial in $K[X]$. A field $K$ is algebraically closed if $L = K$ for every algebraic 
+extension of $L$. An algebraic closure of a field $K$, denoted by $\overline{K}$, is an 
+algebraically closed algebraic extension of $K$. 
+
+Let $E, F$ be extensions of $K$. Assume that $E, F$ are contained in some larger field $L$. We 
+define the \textit{compositum} of $E, F$, denoted by $EF$, to be the smallest subfield of $L$ 
+containing both $E, F$. Generally, we can define the compositum of a family $\{ F_i \}_{i \in I}$ 
+of subfields of $L$ to be the smallest subfield of $L$ containing all $F_i$. The compositum of $E, 
+F$ is not defined unless we have embeddings of both fields into a common field $L$. Let $m = [E: 
+K]$ and $n = [F: K]$. We have the following diagram of extensions:
+\begin{center}
+	\begin{tikzpicture}[node distance = 2cm]
+		\node (L) {$L$};
+		\node[below = 1cm of L] (EF) {$EF$};
+		\node[below left of = EF] (E) {$E$};
+		\node[below right of = EF] (F) {$F$};
+		\node[below right of = E] (K) {$K$};
+		\draw (L) edge (EF);
+		\draw (EF) edge node[above left] {$\le n$} (E) edge node[above right] {$\le m$} (F);
+		\draw (K) edge node[below left] {$m$} (E) edge node[below right] {$n$} (F);
+	\end{tikzpicture}
+\end{center}
+From the diagram $[EF: K] \le mn$ and $m \mid [EF: K]$ and $n \mid [EF: K]$. So if $\gcd(m, n) = 1$ 
+then $[EF: K] = mn$. Therefore, if $E, F$ are finite fields $\F_{p^n}, \F_{p^m}$ with $\gcd(m, n) = 
+1$ then the compositum $EF$ is the finite field $\F_{p^{mn}}$. This allows us to define the 
+algebraic closure of $\F_p$ as the union
+\[ \overline{\F_p} = \bigcup_{i \ge 1} \F_{p^i}. \]
+
+
+\section{Our approach}
+
+Let $\F_q$ be a finite field with $q = p^n$ a prime power. We divide the construction of 
+$\overline{\F_q}$ into two major steps: building towers, and gluing towers. Let us explain what 
+these mean. Let $\ell$ be a prime number, and let 
+\[ \F_q \subset \F_{q^\ell} \subset \F_{q^{\ell^2}} \subset \cdots \]
+a sequence of extensions each of degree $\ell$. We call this an \emph{$\ell$-adic tower}. Define 
+the \emph{$\ell$-adic closure} of $\F_q$ to be the union
+\[ \F_q^{(\ell)} = \bigcup_{i\ge 0}\F_{q^{\ell^i}}. \]
+Assume we have build these towers for different prime $\ell$. Then we can glue them together to get 
+the algebraic closure. By gluing here we mean computing composita. Figure \ref{figure:alg-closure}  
+shows the above structure of $\overline{\F_q}$. The solid circles in the middle are the composita.
+\begin{figure}
+	\begin{center}
+		\tikzset{
+			dotstyle/.style={inner sep = 2pt, outer sep = 2pt, circle, fill = lightgray},
+			edgetower/.style={thick},
+			edgecomp/.style={thick, lightgray}
+		}
+		\begin{tikzpicture} %, every node/.style={inner sep = 2pt, scale=0.8}]
+			\coordinate (T2) at (-2, 0.5);
+			\node (Fq) at (0, 0) {$\F_q$};
+			\node (Fq2) at ($(Fq) + (T2)$) {$\F_{q^2}$};
+			\node (Fq4) at ($(Fq2) + (T2)$) {$\F_{q^4}$};
+			\node (Fq2l) at ($(Fq4) + (T2)$) {$\F_q^{(2)}$};
+			%---------------------
+			\coordinate (T3) at (-0.7, 2);
+			\node (Fq3) at ($(Fq) + (T3)$) {$\F_{q^3}$};
+			\node (Fq9) at ($(Fq3) + (T3)$) {$\F_{q^9}$};
+			\node (Fq3l) at ($(Fq9) + (T3)$) {$\F_q^{(3)}$};
+			%---------------------
+			\coordinate (T5) at (0.7, 2);
+			\node (Fq5) at ($(Fq) + (T5)$) {$\F_{q^5}$};
+			\node (Fq25) at ($(Fq5) + (T5)$) {$\F_{q^{25}}$};
+			\node (Fq5l) at ($(Fq25) + (T5)$) {$\F_q^{(5)}$};
+			%---------------------
+			\coordinate (Tl) at (2, 1);
+			\node[blue] (Fql) at ($(Fq) + (Tl)$) {$\F_{q^\ell}$};
+			\node[blue] (Fql2) at ($(Fql) + (Tl)$) {$\F_{q^{\ell^2}}$};
+			\node[blue] (Fqll) at ($(Fql2) + (Tl)$) {$\F_q^{(\ell)}$};
+			%---------------------
+			\node[dotstyle] (dot1) at ($(Fq2) + (Fq3) - (Fq)$){};
+			\node[dotstyle] (dot2) at ($(Fq4) + (dot1) - (Fq2)$){};
+			\node[dotstyle] (dot3) at ($(Fq2) + (Fq5) - (Fq)$){};
+			\node[dotstyle] (dot4) at ($(Fq3) + (Fq5) - (Fq)$){};
+			\node[dotstyle] (dot5) at ($(Fq3) + (Fql) - (Fq)$){};
+			\node[dotstyle] (dot6) at ($(Fq5) + (Fql) - (Fq)$){};
+			%---------------------
+			\draw 
+			(Fq) 
+			edge[edgetower] (Fq2)
+			edge[edgetower] (Fq3)
+			edge[edgetower] (Fq5)
+			edge[edgetower, blue] (Fql)
+			(Fq2)
+			edge[edgetower] (Fq4)
+			edge[edgecomp] (dot1)
+			(Fq4)
+			edge[edgetower, dotted] (Fq2l)
+			edge[edgecomp] (dot2)
+			(dot1)
+			edge[edgecomp] (dot2)
+			(Fq3)
+			edge[edgetower] (Fq9)
+			edge[edgecomp] (dot1)
+			edge[edgecomp] (dot4)
+			(Fq9)
+			edge[edgetower, dotted] (Fq3l)
+			(Fq5)
+			edge[edgetower] (Fq25)
+			edge[edgecomp] (dot4)
+			edge[edgecomp] (dot6)
+			(Fq25)
+			edge[edgetower, dotted] (Fq5l)
+			(Fql)
+			edge[edgetower, blue] (Fql2)
+			edge[edgecomp] (dot6)
+			(Fql2)
+			edge[edgetower, blue, dotted] (Fqll)
+			(dot3)
+			edge[edgecomp] (Fq2)
+			edge[edgecomp] (Fq5)
+			(dot5)
+			edge[edgecomp] (Fq3)
+			edge[edgecomp] (Fql);
+		\end{tikzpicture}
+	\end{center}
+	\caption{Algebraic closure of $\F_q$}
+	\label{figure:alg-closure}
+\end{figure}
+
+\paragraph{$\ell$-adic towers.} Let $F_i = \F_{q^{\ell^i}}$ be the level $i$ of the $\ell$-adic 
+tower for an integer $i > 0$. The goal is to be able to compute in $F_i$ in quasi-linear time in 
+the extension degree $\ell^i$. For this we need first to construct the tower, and then be able to 
+move up and down to different levels of the tower efficiently. 
+
+In many cases, building extensions and isomorphisms of finite fields requires taking roots of 
+elements. In Chapter \ref{chapter:high-ext-roots} we discuss taking arbitrary roots over extensions 
+of finite fields. The idea is to reduce the problem to root extraction in subfields using 
+trace-like computations. For example, using our algorithm, the complexity of taking square roots in 
+$\F_q$ is an expected $O(\MM(n)\log(p) + \CC(n)\log(n))$ operations in $\F_p$. Computing roots in 
+finite fields was previously considered by others like Cipolla \cite{Williams72} and Tonelli-Shanks 
+\cite{Shanks1972}. Kaltofen and Shoup \cite{KaltofenShoup1997} give an Equal Degree Factorization 
+(EDF) algorithm that can be used for computing roots.
+
+The case $\ell = 2$ of the $\ell$-adic towers, which is of particular interest, is treated 
+separately in Chapter \ref{chapter:2ext-op}. Our algorithms presented there for construction of the 
+tower and performing basic operations inside the tower are all quasi-linear time. The following 
+table summarizes the complexities of our algorithms for some well-known operations for this case.
+
+\begin{center}
+	\begin{tabular}{c|c}
+		Operation & Cost \\
+		\hline
+		addition / subtraction & $O(n)$\\
+		multiplication & $\MM(n)+O(n)$\\
+		inversion & $O(\MM(n))$\\
+		quadratic residuosity & $O(\MM(n)+\log(q))$ \\
+		square root &  $O(\MM(n)\log(nq))$\ \ (expected) \\
+		isomorphism &  $O(n + \log(n)\log(q))$\ \ (expected)
+	\end{tabular}
+\end{center}
+Note the improvement of the square root complexity here compared to the one for general finite 
+fields which has a $\CC(n)$ term. Another special case of the $\ell$-adic towers is $\ell = p$, 
+called the Artin-Schreier tower. The algorithms for this case were presented in \cite{DeSc12}.
+
+Chapter \ref{chapter:ell-adic} discusses the towers for a general $\ell$. The field 
+$\F_{q^{\ell^i}}$ can be represented by two natural bases over $\F_q$. For a univariate 
+representation of the form $\F_q[X_i]/\ang{Q_i}$, where $Q_i \in \F_q[X_i]$ is a monic irreducible 
+polynomial of degree $\ell^i$, we get the monomial basis
+\[ \uu_i = (1,x_{i},x_{i}^2,\ldots,x_{i}^{\ell^{i}-1}) \] 
+for $\F_{q^{\ell^i}}$ over $\F_q$. Here $x_i$ is the residue class of $X_i$ modulo $Q_i$. But we 
+can also consider $\F_{q^{\ell^i}}$ as a degree $\ell$ extension over $\F_{q^{\ell^{i - 1}}}$, 
+i.e. as a bivariate quotient
+\[ \F_q[X_{i-1},X_i]/\ang{Q_{i-1}(X_{i-1}), T_i(X_{i-1},X_i)} \]
+where $T_i$ is a monic polynomial of degree $\ell$ in $X_i$, and of degree less than $\ell^{i-1}$ 
+in $X_{i-1}$. This gives the basis
+\[ \bb_{i} = (1,\ldots,x_{i-1}^{\ell^{i-1}-1},\ldots,x_i^{\ell-1},\ldots, x_{i-1}^{\ell^{i-1}-1}
+x_i^{\ell-1}). \]
+for $\F_{q^{\ell^i}}$ over $\F_q$. The complexity of constructing the tower, which requires some 
+initialization and finding $Q_i, T_i$, is close to quasi-linear. Using the usual algorithms, basic 
+operations like multiplication and inversion in $\F_q[X_i]/\ang{Q_i}$ are done using respectively 
+$O(\MM(\ell^i))$ and $O(\MM(\ell^i)\log(\ell^i))$ operations in $\F_q$. These are quasi-linear in 
+the extension degree $\ell^i$. Moving up and down in the tower is done using repeated applications 
+of two operations called \textit{lift} and \textit{push}. Lifting refers to the change of basis 
+from $\bb_i$ to $\uu_i$ while pushing is the inverse transformation. These operations are also 
+very close to being quasi-linear. The following table summarizes our main complexity results.
+
+\vspace*{4mm}
+\resizebox{\textwidth}{!}{$
+	\def\arraystretch{1.2}
+	\begin{array}{c|cccc}
+		\text{Condition} & \text{Initialization} & Q_i, T_i & \text{Lift, push}\\
+		\hline \hline
+		q = 1 \bmod \ell & O_e(\log(q))  & O(\ell^i) & O(\ell^i) \\
+		q = -1 \bmod \ell & O_e(\log(q)) & O(\ell^i) & O(\MM(\ell^i) \log(\ell^i)) \\
+		- & O_e (\ell^2+\MM(\ell) \log(q)) & O(\MM(\ell^{i+1})\MM(\ell)\log(\ell^i)^2) & O( 
+		\MM(\ell^{i+1})\MM(\ell)\log(\ell^i))\\
+		4\ell \le q^{\sfrac{1}{4}} & O\tilde{_e}(\ell\log^5(q)+\ell^3) \text{~(bit)}  & 
+		O_e(\ell^2+\MM(\ell)\log(\ell
+		q)+\MM(\ell^i)\log(\ell^i)) & O(\MM(\ell^i) \log(\ell^i)) \\
+		4\ell \le q^{\sfrac{1}{4}} & O\tilde{_e}(\ell\log^5(q))  \text{~(bit)}  + 
+		O_e(\MM(\ell)\sqrt{q}\log(q)) & O_e(\log(q) + \MM(\ell^i) \log(\ell^i)) & O(\MM(\ell^i) 
+		\log(\ell^i))
+	\end{array}
+$}
+
+\vspace*{4mm}
+The probabilistic complexities with expected running time are denoted by $O_e(\ )$. Also
+$O\tilde{_e}(\ )$ indicates the additional omission of logarithmic factors. Although in some cases 
+there are extra factors of $\ell$, we have achieved quasi-linear time in the degree of the 
+extension $\ell^i$ in most of the cases. Our algorithm for constructing towers are inspired by the
+previous works of Shoup \cite{Shoup90,shoup94} and Lenstra / De Smit 
+\cite{lenstra+desmit08-stdmodels}, and Couveignes / Lercier \cite{couveignes+lercier11}. See the 
+introduction of Chapter \ref{chapter:ell-adic} for more details.
+
+\paragraph{Composita.} In Chapter \ref{chapter:alg-closure}, we discuss the composita of fields. 
+Let $\F_{p^m} = \F_p[x] / \ang{Q_m(x)}$ and $\F_{p^n} = \F_p[y] / \ang{Q_n(y)}$ be two finite 
+fields where $Q_m(x) \in \F_p[x]$ and $Q_n(y) \in \F_p[y]$ are irreducible of comprime degrees $m, 
+n > 1$ respectively. Define the \textit{composed product} of $Q_m, Q_n$ as
+\[ Q_{mn}(z) = \prod_{\substack{1 \le i \le m \\ 1 \le j \le n}} (z- a_i b_j) \]
+where $(a_i)_{1 \le i \le m}$ and $(b_j)_{1 \le j \le n}$ are roots of $Q_m$ and $Q_n$ in the 
+algebraic closure of $\F_p$. The polynomial $Q_{mn}$ is irreducible of degree $mn$ in $\F_p[z]$, 
+see \cite{Brawley1987}. The field $\F_p[z] / \ang{Q_{mn}(z)}$ is the compositum of $\F_{p^m}$ and 
+$\F_{p^n}$, and there exists embeddings $\varphi_x$, $\varphi_y$, and an isomorphism $\Phi$ of the 
+form
+$$
+\begin{array}{rrll}
+\varphi_x: & \F_p[x]/\ang{Q_m} & \to & \F_p[z]/\ang{Q_{mn}},\\
+\varphi_y: & \F_p[y]/\ang{Q_n} & \to & \F_p[z]/\ang{Q_{mn}},\\
+\Phi:&  A=\F_p[x,y]/\ang{Q_m,Q_n} & \to & \F_p[z]/\ang{Q_{mn}} \\
+&  xy & \mapsfrom & z.
+\end{array}$$
+The goal is to compute $\varphi_x$, $\varphi_y$, and $\Phi$ and $\Phi^{-1}$ efficiently. We present 
+algorithms for computing $\varphi_x$ and $\varphi_y$ which run using $O(n\MM(m)+m\MM(n))$ 
+operations in $\F_p$. Assuming that $m \le n$, $\Phi$ and $\Phi^{-1}$ can be computed using either 
+$O(m^2 \MM(n))$ or $O(\MM(mn)n^{1/2}+\MM(m)n^{(\omega+1)/2} )$ operations in $\F_p$ where $\omega$ 
+is the linear algebra exponent. Therefore, computing embeddings $\varphi_x, \varphi_y$ is 
+quasi-linear in $mn$ while computing the isomorphisms $\Phi, \Phi^{-1}$ has an extra factor of $m$ 
+or $n$. Previous algorithms such as the ones presented in \cite{bosma+cannon+steel97}, and 
+\cite{LenstraJr91,Allombert02} also compute embeddings of finite fields. They rely on linear 
+algebra which results in complexities at least quadratic in the degree of the extensions.
+
+\bibliographystyle{plain}
+\bibliography{references}
